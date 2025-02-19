@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:math';
+import 'dart:async';
+
+void main() {
+  runApp(CalculatorApp());
+}
+
+class CalculatorApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Colors.grey[300],
+        scaffoldBackgroundColor: Colors.grey[300],
+        textTheme: TextTheme(
+          bodyText2: TextStyle(color: Colors.black),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.grey[400],
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20),
+        ),
+      ),
+      home: SplashScreen(),
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CalculatorHome()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[300],
+      body: Center(
+        child: Text(
+          'Designed By Arjya',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+      ),
+    );
+  }
+}
+
+class CalculatorHome extends StatefulWidget {
+  @override
+  _CalculatorHomeState createState() => _CalculatorHomeState();
+}
+
+class _CalculatorHomeState extends State<CalculatorHome> {
+  String input = '';
+  String output = '';
+  List<String> history = [];
+
+  void buttonPressed(String value) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      if (value == 'C') {
+        input = '';
+        output = '';
+      } else if (value == '=') {
+        try {
+          output = evaluateExpression(input);
+          history.insert(0, '$input = $output');
+          if (history.length > 10) history.removeLast();
+        } catch (e) {
+          output = 'Error';
+        }
+      } else {
+        input += value;
+      }
+    });
+  }
+
+  String evaluateExpression(String expression) {
+    try {
+      if (expression.contains('m-cm')) {
+        return (double.parse(expression.replaceAll('m-cm', '')) * 100).toString();
+      } else if (expression.contains('cm-m')) {
+        return (double.parse(expression.replaceAll('cm-m', '')) / 100).toString();
+      } else if (expression.contains('km-mi')) {
+        return (double.parse(expression.replaceAll('km-mi', '')) * 0.621371).toString();
+      } else if (expression.contains('mi-km')) {
+        return (double.parse(expression.replaceAll('mi-km', '')) / 0.621371).toString();
+      } else if (expression.contains('in-cm')) {
+        return (double.parse(expression.replaceAll('in-cm', '')) * 2.54).toString();
+      } else if (expression.contains('cm-in')) {
+        return (double.parse(expression.replaceAll('cm-in', '')) / 2.54).toString();
+      } else if (expression.contains('ft-m')) {
+        return (double.parse(expression.replaceAll('ft-m', '')) * 0.3048).toString();
+      } else if (expression.contains('m-ft')) {
+        return (double.parse(expression.replaceAll('m-ft', '')) / 0.3048).toString();
+      } else if (expression.contains('yd-m')) {
+        return (double.parse(expression.replaceAll('yd-m', '')) * 0.9144).toString();
+      } else if (expression.contains('m-yd')) {
+        return (double.parse(expression.replaceAll('m-yd', '')) / 0.9144).toString();
+      } else if (expression.contains('mi-ft')) {
+        return (double.parse(expression.replaceAll('mi-ft', '')) * 5280).toString();
+      } else if (expression.contains('ft-mi')) {
+        return (double.parse(expression.replaceAll('ft-mi', '')) / 5280).toString();
+      } else {
+        return (double.parse(expression).toString());
+      }
+    } catch (e) {
+      return 'Error';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Calculator')),
+      body: Container(
+        color: Colors.grey[300],
+        child: Column(
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: history.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(history[index], style: TextStyle(color: Colors.black)),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.bottomRight,
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      input,
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
